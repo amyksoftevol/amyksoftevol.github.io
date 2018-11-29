@@ -5,21 +5,10 @@
 	<title>Document</title>
 </head>
 <body>
-	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="0" height="1000px" id="iframeUploader"></iframe>
+	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="0" height="1000px" id="iframeUploader" onload="sendMessageToIframe()"></iframe>
 	<button onclick="sendMessageToIframe();">Manual send message</button>
 	<script>
-		var checkingInterval = setInterval(checkIframeLoaded, 100);
 		var iframeElement = document.getElementById('iframeUploader');
-		function checkIframeLoaded() {
-			var iframeDocument = iframeElement.contentDocument || (iframeElement.contentWindow && iframeElement.contentWindow.document);
-			console.log('iframeDocument: ', iframeDocument);
-			if (iframeDocument.readyState  === 'complete') {
-				console.log('iframe loaded!');
-				sendMessageToIframe();
-				clearInterval(checkingInterval);
-			}
-		}
-
 		function sendMessageToIframe() {
 			iframeElement.contentWindow.postMessage('Hello from parent!', '*');
 		}
