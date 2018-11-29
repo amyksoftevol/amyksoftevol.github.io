@@ -5,14 +5,19 @@
 	<title>Document</title>
 </head>
 <body>
-	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="0" height="1000px" id="iframeUploader" onload="sendMessageToIframe()"></iframe>
-	<button onclick="sendMessageToIframe();">Manual send message</button>
+	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="1" height="500px" id="iframeUploader" onload="sendDataToIframe()"></iframe>
 	<script>
-		var iframeElement = document.getElementById('iframeUploader');
-		function sendMessageToIframe() {
-			iframeElement.contentWindow.postMessage('Hello from parent!', '*');
+		var iframeElement = document.getElementById("iframeUploader");
+		function sendDataToIframe() {
+			var iframeConfig = {
+				authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
+				style: {
+					title: {'color':'#FFF', 'background-color':'#BAAFD5'},
+					button: {'background-color':'#13b49f', 'font-size':'14px', 'color':'#FFF', 'font-weight':'500'}
+				}
+			};
+			iframeElement.contentWindow.postMessage(iframeConfig, "*");
 		}
-
 	</script>
 </body>
 </html>
