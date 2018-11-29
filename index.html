@@ -11,7 +11,8 @@
 		var checkingInterval = setInterval(checkIframeLoaded, 100);
 		var iframeElement = document.getElementById('iframeUploader');
 		function checkIframeLoaded() {
-			var iframeDocument = iframeElement.contentDocument || iframeElement.contentWindow.document;
+			var iframeDocument = iframeElement.contentDocument || (iframeElement.contentWindow && iframeElement.contentWindow.document);
+			console.log('iframeDocument: ', iframeDocument);
 			if (iframeDocument.readyState  === 'complete') {
 				console.log('iframe loaded!');
 				sendMessageToIframe();
