@@ -5,6 +5,10 @@
 	<title>Document</title>
 </head>
 <body>
-	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="0" height="1000px"></iframe>
+	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="0" height="1000px" id="iframeUploader"></iframe>
+	<script>
+		var iframeElement = document.getElementById('iframeUploader');
+		iframeElement.contentWindow.postMessage('Hello from parent!', '*');
+	</script>
 </body>
 </html>
