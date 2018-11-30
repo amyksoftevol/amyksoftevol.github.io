@@ -5,18 +5,80 @@
 	<title>Document</title>
 </head>
 <body>
-	<iframe src="https://iframeuploader.herokuapp.com/" frameborder="1" height="500px" id="iframeUploader" onload="sendDataToIframe()"></iframe>
+
+	<div style="width:600px;margin:0 auto">
+		<div style="text-align: center;">
+
+			<button onclick="iframeUploader.uploadVideo()">Upload From Parent</button>
+
+		</div>
+		<div id="iframeContainer" style="width:400px;height:400px;margin:0 auto"></div>
+	</div>
+
 	<script>
-		var iframeElement = document.getElementById("iframeUploader");
-		function sendDataToIframe() {
-			var iframeConfig = {
-				type: "iframeMessage",
-				authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
-				cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
-				cssExternal: "https://amyksoftevol.github.io/styles.css"
-			};
-			iframeElement.contentWindow.postMessage(iframeConfig, "*");
-		}
+		var iframeUploader = (function() {
+
+			var iframeElement;
+			var iframeOptions = {};
+			var iframeSrc = 'https://iframeuploader.herokuapp.com/';
+
+			function createIframeUploader(iframeContainerId, configuration) {
+				updateIframeUploaderOptions(configuration);
+				var iframeContainer = document.getElementById(iframeContainerId)
+				var iframe = document.createElement('iframe');
+				iframe.src = iframeSrc;
+				iframe.frameborder = '1';
+				iframe.width = '100%';
+				iframe.height = '100%';
+				iframe.onload = function() {
+					iframeElement = iframe;
+					configureIframeUploader(iframe);
+				};
+				iframeContainer.appendChild(iframe);
+			}
+
+			function configureIframeUploader(iframeEl) {
+				sendMessageToIframe(iframeEl);
+			}
+
+			function updateIframeUploaderOptions(configuration) {
+				if (configuration) {
+					iframeOptions = configuration;
+				}
+				Object.defineProperty(iframeOptions, 'source', {
+					value: 'iframeParent',
+					writable: false
+				});
+			}
+
+			function sendMessageToIframe(iframeEl) {
+				console.log('sendMessageToIframe', iframeEl);
+				iframeEl.contentWindow.postMessage(iframeOptions, "*");
+			}
+
+			function uploadVideo() {
+				if (!iframeElement) {
+					alert('Iframe is still loading...Please try again');
+					return;
+				}
+				sendMessageToIframe(iframeElement);
+			}
+
+			return {
+				uploadVideo: uploadVideo,
+				createIframeUploader: createIframeUploader
+			}
+		}());
 	</script>
+
+	<script>
+		var config = {
+			authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
+			cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
+			cssExternal: "https://dl.dropbox.com/s/khutet5bmu9bl7w/styles.css"
+		};
+		iframeUploader.createIframeUploader('iframeContainer', config);
+	</script>
+	
 </body>
 </html>
