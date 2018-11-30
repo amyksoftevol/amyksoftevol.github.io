@@ -10,11 +10,10 @@
 		var iframeElement = document.getElementById("iframeUploader");
 		function sendDataToIframe() {
 			var iframeConfig = {
+				type: "iframeMessage",
 				authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
-				style: {
-					title: {'color':'#FFF', 'background-color':'#BAAFD5'},
-					button: {'background-color':'#13b49f', 'font-size':'14px', 'color':'#FFF', 'font-weight':'500'}
-				}
+				cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
+				cssExternal: "https://amyksoftevol.github.io/styles.css"
 			};
 			iframeElement.contentWindow.postMessage(iframeConfig, "*");
 		}
