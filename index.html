@@ -9,7 +9,8 @@
 	<div style="width:600px;margin:0 auto">
 		<div style="text-align: center;">
 
-			<button onclick="iframeUploader.uploadVideo()">Upload From Parent</button>
+			<button onclick="iframeUploader.chooseVideo()">Upload From Parent</button>
+			<button onclick="iframeUploader.updateAuthToken('ThisIsNewAuthToken')">Update Auth Token</button>
 
 		</div>
 		<div id="iframeContainer" style="width:400px;height:400px;margin:0 auto"></div>
@@ -23,58 +24,72 @@
 				console.log('Message from CHILD: ', event);
 			});
 
+			var IFRAME_SOURCE = 'iframeParent';
+			var IFRAME_SRC = 'https://iframeuploader.herokuapp.com/';
 			var iframeElement;
-			var iframeOptions = {};
-			var iframeSrc = 'https://iframeuploader.herokuapp.com/';
+			var iframeOptions;
+
+			function Message(operation, options) {
+				return {
+					operation: operation,
+					options: options
+				}
+			}
 
 			function createIframeUploader(iframeContainerId, configuration) {
 				setIframeUploaderOptions(configuration);
 				var iframeContainer = document.getElementById(iframeContainerId)
 				var iframe = document.createElement('iframe');
-				iframe.src = iframeSrc;
+				iframe.src = IFRAME_SRC;
 				iframe.frameborder = '1';
 				iframe.width = '100%';
 				iframe.height = '100%';
 				iframe.onload = function() {
 					iframeElement = iframe;
-					// configure iframe uploader
-					sendMessageToChildIframe(iframeElement);
+					configureIframeUploader();
 				};
 				iframeContainer.appendChild(iframe);
 			}
 
 			function setIframeUploaderOptions(configuration) {
-				iframeOptions = configuration;
-				Object.defineProperty(iframeOptions, 'source', {
-					value: 'iframeParent',
-					writable: false
-				});
+				iframeOptions = configuration || {};
+				iframeOptions.source = IFRAME_SOURCE;
 			}
 
-			function sendMessageToChildIframe(iframeEl) {
-				console.log('sendMessageToChildIframe', iframeEl);
-				iframeEl.contentWindow.postMessage(iframeOptions, "*");
+			function configureIframeUploader() {
+				sendMessageToChildIframe(new Message('load', iframeOptions));
 			}
 
-			function uploadVideo() {
+			function sendMessageToChildIframe(message) {
+				iframeElement.contentWindow.postMessage(message, "*");
+			}
+
+			function chooseVideo() {
 				if (!iframeElement) {
 					alert('Iframe is still loading...Please try again later!');
 					return;
 				}
-				sendMessageToChildIframe(iframeElement);
+				sendMessageToChildIframe(new Message('chooseVideo', iframeOptions));
+			}
+
+			function updateAuthToken(authToken) {
+				iframeOptions.authToken = authToken;
+				sendMessageToChildIframe(new Message('updateAuthToken', iframeOptions));
 			}
 
 			return {
-				uploadVideo: uploadVideo,
-				createIframeUploader: createIframeUploader
+				chooseVideo: chooseVideo,
+				createIframeUploader: createIframeUploader,
+				updateAuthToken: updateAuthToken
 			}
+
 		}());
 	</script>
 
 	<script>
 		var config = {
 			authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
-			cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
+			// cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
 			cssExternal: "https://dl.dropbox.com/s/khutet5bmu9bl7w/styles.css"
 		};
 		iframeUploader.createIframeUploader('iframeContainer', config);
