@@ -18,12 +18,17 @@
 	<script>
 		var iframeUploader = (function() {
 
+			// listen events from child
+			window.addEventListener('message', event => {
+				console.log('Message from CHILD: ', event);
+			});
+
 			var iframeElement;
 			var iframeOptions = {};
 			var iframeSrc = 'https://iframeuploader.herokuapp.com/';
 
 			function createIframeUploader(iframeContainerId, configuration) {
-				updateIframeUploaderOptions(configuration);
+				setIframeUploaderOptions(configuration);
 				var iframeContainer = document.getElementById(iframeContainerId)
 				var iframe = document.createElement('iframe');
 				iframe.src = iframeSrc;
@@ -32,36 +37,31 @@
 				iframe.height = '100%';
 				iframe.onload = function() {
 					iframeElement = iframe;
-					configureIframeUploader(iframe);
+					// configure iframe uploader
+					sendMessageToChildIframe(iframeElement);
 				};
 				iframeContainer.appendChild(iframe);
 			}
 
-			function configureIframeUploader(iframeEl) {
-				sendMessageToIframe(iframeEl);
-			}
-
-			function updateIframeUploaderOptions(configuration) {
-				if (configuration) {
-					iframeOptions = configuration;
-				}
+			function setIframeUploaderOptions(configuration) {
+				iframeOptions = configuration;
 				Object.defineProperty(iframeOptions, 'source', {
 					value: 'iframeParent',
 					writable: false
 				});
 			}
 
-			function sendMessageToIframe(iframeEl) {
-				console.log('sendMessageToIframe', iframeEl);
+			function sendMessageToChildIframe(iframeEl) {
+				console.log('sendMessageToChildIframe', iframeEl);
 				iframeEl.contentWindow.postMessage(iframeOptions, "*");
 			}
 
 			function uploadVideo() {
 				if (!iframeElement) {
-					alert('Iframe is still loading...Please try again');
+					alert('Iframe is still loading...Please try again later!');
 					return;
 				}
-				sendMessageToIframe(iframeElement);
+				sendMessageToChildIframe(iframeElement);
 			}
 
 			return {
