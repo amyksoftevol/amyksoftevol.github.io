@@ -6,32 +6,31 @@
 </head>
 <body>
 
-	<div style="width:600px;margin:0 auto">
-		<div style="text-align: center;">
+	<div style="width:100%;height:700px;margin:0 auto">
+		<!-- <div style="text-align: center;">
 
 			<button onclick="iframeUploader.chooseVideo()">Upload From Parent</button>
-			<button onclick="iframeUploader.updateAuthToken('ThisIsNewAuthToken')">Update Auth Token</button>
+			<button onclick="iframeUploader.updateAuthToken('7777777777')">Update Auth Token</button>
 
-		</div>
-		<div id="iframeContainer" style="width:400px;height:400px;margin:0 auto"></div>
+		</div> -->
+		<div id="iframeContainer" style="width:100%;height:100%;"></div>
 	</div>
+	<!-- <script src='https://dl.dropboxusercontent.com/s/fgt3pxdl3gulnw8/uploader.js'></script> -->
 
 	<script>
-		var iframeUploader = (function() {
-
-			// listen events from child
-			window.addEventListener('message', event => {
-				console.log('Message from CHILD: ', event);
-			});
+		var IframeUploader = (function(window, undefined) {
 
 			var IFRAME_SOURCE = 'iframeParent';
-			var IFRAME_SRC = 'https://iframeuploader.herokuapp.com/';
+			// var IFRAME_SRC = 'http://dev.levelupmedia.tv/static/upload';
+			var IFRAME_SRC = 'http://localhost:4200';
+			// var IFRAME_ORIGIN = 'http://dev.levelupmedia.tv';
+			var IFRAME_ORIGIN = 'http://localhost:4200';
 			var iframeElement;
 			var iframeOptions;
 
-			function Message(operation, options) {
+			function Message(messageType, options) {
 				return {
-					operation: operation,
+					messageType: messageType,
 					options: options
 				}
 			}
@@ -41,9 +40,10 @@
 				var iframeContainer = document.getElementById(iframeContainerId)
 				var iframe = document.createElement('iframe');
 				iframe.src = IFRAME_SRC;
-				iframe.frameborder = '1';
+				iframe.frameBorder = '0';
 				iframe.width = '100%';
 				iframe.height = '100%';
+				iframe.style.flexGrow = '1';
 				iframe.onload = function() {
 					iframeElement = iframe;
 					configureIframeUploader();
@@ -56,26 +56,47 @@
 				iframeOptions.source = IFRAME_SOURCE;
 			}
 
-			function configureIframeUploader() {
-				sendMessageToChildIframe(new Message('load', iframeOptions));
+			function sendMessageToChildIframe(message) {
+				iframeElement.contentWindow.postMessage(message, IFRAME_SRC);
 			}
 
-			function sendMessageToChildIframe(message) {
-				iframeElement.contentWindow.postMessage(message, "*");
+			function configureIframeUploader() {
+				sendMessageToChildIframe(new Message('LOAD', iframeOptions));
 			}
 
 			function chooseVideo() {
 				if (!iframeElement) {
-					alert('Iframe is still loading...Please try again later!');
+					alert('Iframe isn\'t loaded...Please try again later!');
 					return;
 				}
-				sendMessageToChildIframe(new Message('chooseVideo', iframeOptions));
+				sendMessageToChildIframe(new Message('CHOOSE_VIDEO', iframeOptions));
 			}
 
 			function updateAuthToken(authToken) {
 				iframeOptions.authToken = authToken;
-				sendMessageToChildIframe(new Message('updateAuthToken', iframeOptions));
+				sendMessageToChildIframe(new Message('UPDATE_AUTH_TOKEN', iframeOptions));
 			}
+
+			// window.onIframeUploaderMessage = function(messageData) {}
+
+			function sendMessageToParent(messageData) {
+				var event = new CustomEvent('iframeMessage', {detail: messageData});
+				window.dispatchEvent(event);
+			}
+
+			// window.addEventListener('message', function(event) {
+			// 	if (event.origin !== IFRAME_ORIGIN) return;
+			// 	var messageData = JSON.parse(event.data);
+			// 	console.log('Message from CHILD: ', messageData);
+			// 	window.onIframeUploaderMessage(messageData);
+			// });
+
+			window.addEventListener('message', function(event) {
+				if (event.origin !== IFRAME_ORIGIN) return;
+				var messageData = JSON.parse(event.data);
+				console.log('Message from CHILD: ', messageData);
+				sendMessageToParent(messageData);
+			});
 
 			return {
 				chooseVideo: chooseVideo,
@@ -83,16 +104,23 @@
 				updateAuthToken: updateAuthToken
 			}
 
-		}());
+		}(window));
 	</script>
 
 	<script>
 		var config = {
-			authToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJlbWFpbCIsInN1YiI6IjY3MiIsImlhdCI6MTU0MzQ5MjEzOCwiZXhwIjoxNTQ0MDk2OTM4fQ.0QA-IznaT6KvJMuwxAZNa5Wi7PBCLVibe3eoYUc26rg",
-			// cssEmbedded: ".title{color:#FFF;background-color:#BAAFD5;} .button{background-color:#13b49f;font-size:14px;color:#FFF;font-weight:500;}",
-			cssExternal: "https://dl.dropbox.com/s/khutet5bmu9bl7w/styles.css"
+			authToken: "",
+			// cssEmbedded: '.progress-bar-indicator{background-color:yellow;}.btn-main{background-color:yellow}.btn-confirmation-no{background-color:green}.container{padding: 20px;}',
+			// cssExternal: "https://dl.dropbox.com/s/khutet5bmu9bl7w/styles.css"
 		};
-		iframeUploader.createIframeUploader('iframeContainer', config);
+		IframeUploader.createIframeUploader('iframeContainer', config);
+		// window.onIframeUploaderMessage = function(messageData) {
+		// 	console.log('NEW MESSAGE DATA', messageData);
+		// }	
+		window.addEventListener("iframeMessage", function(event) {
+		  console.log('CUSTOM EVENT', event);
+		});
+
 	</script>
 	
 </body>
