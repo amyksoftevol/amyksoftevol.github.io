@@ -3,6 +3,76 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<style>
+		body {
+			color: #B3BFD0;
+		}
+		.container {
+			background-color: #050D13;
+			padding: 30px;
+		}
+
+		.btn-main, .btn-main:hover {
+			background-color: #22CE9B;
+			border-radius: 7px;
+		}
+		.btn-confirmation-no {
+			background-color: #22CE9B;
+		    border: 1px solid #22CE9B;
+		    color: white;
+		}
+
+		.video-upload-header {
+			box-shadow: inset 0 -1px 0 0 #222629;
+			padding-left: 0;
+			padding-right: 0;
+		}
+		.video-upload-header-limit {
+			color: #879198;
+		}
+
+		.video-upload-row-head {
+			box-shadow: inset 0 -1px 0 0 #222629;
+			color: #879198;
+		}
+		.video-upload-row {
+			box-shadow: inset 0 -1px 0 0 #222629;
+		}
+		.video-upload-row.error {
+			background-color: transparent;;
+		}
+		.video-upload-cell-location {
+			padding: 0;
+		}
+
+		.drag-and-drop-area-container {
+			border: 2px dashed #53595D;
+		    background: #091217;
+		    border-radius: 7px;
+		}
+		.drag-and-drop-area-container.visible {
+			background: #091217;
+		}
+		.drag-and-drop-area-text {
+			color: #B3BFD0;
+		}
+
+		.confirmation-tooltip {
+			background-color: #1D2429;
+			border-radius: 7px;
+			color: #BBC7D8;
+			border: solid 1px #1D2429;
+			box-shadow: none;
+		}
+		.confirmation-tooltip-top:before {
+			border-color: #1D2429 transparent transparent transparent;
+		}
+		.confirmation-tooltip-top:after {
+			border-color: #1D2429 transparent transparent transparent;
+
+		}
+
+	</style>
 </head>
 <body>
 
@@ -77,25 +147,15 @@
 				sendMessageToChildIframe(new Message('UPDATE_AUTH_TOKEN', iframeOptions));
 			}
 
-			// window.onIframeUploaderMessage = function(messageData) {}
-
-			function sendMessageToParent(messageData) {
+			function sendMessageToIframeParent(messageData) {
 				var event = new CustomEvent('iframeMessage', {detail: messageData});
 				window.dispatchEvent(event);
 			}
 
-			// window.addEventListener('message', function(event) {
-			// 	if (event.origin !== IFRAME_ORIGIN) return;
-			// 	var messageData = JSON.parse(event.data);
-			// 	console.log('Message from CHILD: ', messageData);
-			// 	window.onIframeUploaderMessage(messageData);
-			// });
-
 			window.addEventListener('message', function(event) {
 				if (event.origin !== IFRAME_ORIGIN) return;
 				var messageData = JSON.parse(event.data);
-				console.log('Message from CHILD: ', messageData);
-				sendMessageToParent(messageData);
+				sendMessageToIframeParent(messageData);
 			});
 
 			return {
@@ -108,17 +168,17 @@
 	</script>
 
 	<script>
+		var style = document.getElementsByTagName('style')[0].innerText;
+
 		var config = {
 			authToken: "",
-			// cssEmbedded: '.progress-bar-indicator{background-color:yellow;}.btn-main{background-color:yellow}.btn-confirmation-no{background-color:green}.container{padding: 20px;}',
+			cssEmbedded: style,
 			// cssExternal: "https://dl.dropbox.com/s/khutet5bmu9bl7w/styles.css"
 		};
 		IframeUploader.createIframeUploader('iframeContainer', config);
-		// window.onIframeUploaderMessage = function(messageData) {
-		// 	console.log('NEW MESSAGE DATA', messageData);
-		// }	
 		window.addEventListener("iframeMessage", function(event) {
 		  console.log('CUSTOM EVENT', event);
+		  console.log('Message from CHILD: ', event.detail);
 		});
 
 	</script>
